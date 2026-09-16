@@ -8,6 +8,8 @@ export default defineConfig({
   // Vitest 4 では Workers 用設定を Vite プラグインとして登録する。
   plugins: [
     cloudflareTest({
+      // 外部アカウントへ接続せず、Miniflare のローカルバインディングを使う。
+      remoteBindings: false,
       wrangler: {
         configPath: "./wrangler.jsonc",
       },
