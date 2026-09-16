@@ -1,0 +1,4 @@
+# このファイルを .dev.vars にコピーし、ローカル開発専用の値を設定してください。
+# 実際の認証情報をこの例示ファイルへ記入したり、Git にコミットしたりしないでください。
+BASIC_AUTH_USER=replace-with-local-user
+BASIC_AUTH_PASSWORD=replace-with-a-long-local-password
