@@ -1,0 +1,19 @@
+# Node.js の依存関係とパッケージマネージャーのログ
+node_modules/
+npm-debug.log*
+
+# Wrangler が作成するローカル状態と出力
+.wrangler/
+dist/
+
+# ローカル専用の Secret（例示ファイルだけは追跡する）
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# テスト結果とカバレッジ
+coverage/
+
+# OS・エディター固有ファイル
+.DS_Store
+*.swp
