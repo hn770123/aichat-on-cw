@@ -1,31 +1,83 @@
 /**
- * AI チャット Worker のエントリーポイント。
+ * AI チャット Worker のエントリーポイントと基盤ルーティング。
  *
- * この段階ではプロジェクト初期化を検証できる最小応答だけを提供し、認証、
- * ルーティング、各バインディングを使う処理は後続の実装手順で追加する。
+ * API と死活監視は Worker 内で処理し、それ以外のパスは Static Assets
+ * バインディングへ委譲する。認証と業務 API は後続の実装手順で追加する。
  */
 
+import type { Env } from "./env";
+import { errorResponse, HttpError, jsonResponse } from "./http";
+
 /**
- * 初期化済み Worker が起動できることを確認するため、仮の応答を返す。
+ * 許可されていない HTTP メソッドを表すエラーを生成する。
  *
- * @returns 後続実装前であることを示す HTTP 501 応答。
+ * @param allowedMethods 対象ルートで許可するメソッド一覧。
+ * @returns Allow ヘッダーを持つ HTTP 405 エラー。
  */
-function createNotImplementedResponse(): Response {
-  return new Response("Not implemented", {
-    status: 501,
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-    },
+function methodNotAllowed(allowedMethods: readonly string[]): HttpError {
+  return new HttpError(405, "method_not_allowed", "この HTTP メソッドは使用できません。", {
+    Allow: allowedMethods.join(", "),
   });
+}
+
+/**
+ * バインディング情報を公開せずに Worker の稼働状態を返す。
+ *
+ * @param request 死活監視への HTTP リクエスト。
+ * @returns 正常稼働を示す JSON 応答。
+ * @throws {HttpError} GET 以外のメソッドが指定された場合。
+ */
+function handleHealth(request: Request): Response {
+  if (request.method !== "GET") {
+    throw methodNotAllowed(["GET"]);
+  }
+
+  return jsonResponse({ ok: true });
+}
+
+/**
+ * API 名前空間のリクエストを処理する。
+ *
+ * @returns 未実装または存在しない API を示す JSON 404 応答。
+ * @throws {HttpError} 一致する API ルートが存在しない場合。
+ */
+function handleApi(): never {
+  throw new HttpError(404, "not_found", "API が見つかりません。");
+}
+
+/**
+ * URL のパスに応じて Worker 内処理または静的アセットへ振り分ける。
+ *
+ * @param request 受信した HTTP リクエスト。
+ * @param env Cloudflare から注入されたバインディング。
+ * @returns ルートに対応する HTTP 応答。
+ */
+async function routeRequest(request: Request, env: Env): Promise<Response> {
+  const pathname = new URL(request.url).pathname;
+
+  if (pathname === "/health") {
+    return handleHealth(request);
+  }
+  if (pathname === "/api" || pathname.startsWith("/api/")) {
+    return handleApi();
+  }
+
+  return env.ASSETS.fetch(request);
 }
 
 export default {
   /**
-   * すべてのリクエストを受け取る暫定 fetch ハンドラー。
+   * すべてのリクエストをルーターへ渡し、例外を安全な応答へ変換する。
    *
-   * @returns 初期化段階の固定応答。
+   * @param request 受信した HTTP リクエスト。
+   * @param env Cloudflare から注入されたバインディング。
+   * @returns ルーティング結果または安全なエラー応答。
    */
-  fetch(): Response {
-    return createNotImplementedResponse();
+  async fetch(request: Request, env: Env): Promise<Response> {
+    try {
+      return await routeRequest(request, env);
+    } catch (error: unknown) {
+      return errorResponse(error);
+    }
   },
-} satisfies ExportedHandler;
+} satisfies ExportedHandler<Env>;

@@ -3,7 +3,7 @@
   "name": "aichat-on-cw",
   "main": "src/index.ts",
   // 互換日付は初期化時点で固定し、更新時にはテストを実施する。
-  "compatibility_date": "2026-09-16",
+  "compatibility_date": "2026-08-22",
   // 静的ファイルは Worker から ASSETS バインディング経由で配信する。
   "assets": {
     "directory": "./public",
