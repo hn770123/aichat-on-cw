@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AI チャット</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>AI チャット</h1>
+    <div class="header-actions">
+      <button id="history-toggle" type="button" aria-expanded="true">履歴</button>
+      <button id="new-chat" type="button" class="primary">新しい会話</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside id="history-panel" class="history-panel" aria-label="会話履歴">
+      <h2>会話履歴</h2>
+      <p id="history-empty" class="muted">会話はまだありません。</p>
+      <ul id="history-list"></ul>
+    </aside>
+
+    <section class="chat-panel" aria-label="チャット">
+      <section id="new-conversation-panel" class="settings-panel" hidden>
+        <h2>新しい会話の設定</h2>
+        <form id="new-conversation-form">
+          <label for="model-select">AI モデル</label>
+          <select id="model-select" required></select>
+          <label for="system-prompt">システムプロンプト</label>
+          <textarea id="system-prompt" rows="5"></textarea>
+          <p id="prompt-help" class="help">秘密情報は入力しないでください。</p>
+          <div class="form-actions">
+            <button id="cancel-new" type="button">キャンセル</button>
+            <button id="create-chat" type="submit" class="primary">作成</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="conversation-panel" hidden>
+        <div class="conversation-header">
+          <div>
+            <h2 id="conversation-title">会話</h2>
+            <p id="conversation-model" class="muted"></p>
+          </div>
+          <button id="delete-chat" type="button" class="danger">削除</button>
+        </div>
+        <details class="prompt-details">
+          <summary>システムプロンプトを確認</summary>
+          <textarea id="current-prompt" rows="4" readonly></textarea>
+        </details>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <form id="message-form" class="message-form">
+          <label for="message-input" class="visually-hidden">メッセージ</label>
+          <textarea id="message-input" rows="3" maxlength="8000" placeholder="メッセージを入力" required></textarea>
+          <button id="send-message" type="submit" class="primary">送信</button>
+        </form>
+      </section>
+
+      <p id="welcome" class="welcome">「新しい会話」からチャットを始めてください。</p>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <p id="error" class="error" role="alert"></p>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

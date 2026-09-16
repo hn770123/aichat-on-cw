@@ -1,0 +1,61 @@
+/*
+ * iOS 9 Safari を含むブラウザー向けの AI チャット画面スタイル。
+ * Grid、gap、CSS カスタムプロパティを避け、基本的な Flexbox を使用する。
+ */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; color: #182230; background: #f4f7fb; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+button, select, textarea { color: inherit; font: inherit; }
+button, select { min-height: 44px; }
+button { padding: 9px 15px; border: 1px solid #aab6c5; border-radius: 8px; background: #fff; cursor: pointer; }
+button:disabled { cursor: default; opacity: .55; }
+button.primary { color: #fff; border-color: #1769aa; background: #1769aa; }
+button.danger { color: #a51d2d; border-color: #d5a0a7; }
+.site-header { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; min-height: 68px; padding: 12px 20px; color: #fff; background: #17324d; }
+.site-header h1 { margin: 0; font-size: 22px; }
+.header-actions button { margin-left: 8px; color: #182230; }
+.header-actions button.primary { color: #fff; }
+.layout { display: -webkit-flex; display: flex; min-height: calc(100% - 68px); }
+.history-panel { width: 280px; padding: 20px; border-right: 1px solid #dbe2ea; background: #fff; }
+.history-panel h2, .settings-panel h2 { margin-top: 0; font-size: 18px; }
+.history-panel ul { margin: 0; padding: 0; list-style: none; }
+.history-panel li { margin-bottom: 8px; }
+.history-item { width: 100%; min-height: 58px; text-align: left; }
+.history-item strong, .history-item span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item span { margin-top: 3px; color: #647487; font-size: 12px; }
+.chat-panel { position: relative; -webkit-flex: 1; flex: 1; min-width: 0; padding: 24px; }
+.settings-panel, #conversation-panel { max-width: 900px; margin: 0 auto; }
+.settings-panel { padding: 22px; border: 1px solid #dbe2ea; border-radius: 10px; background: #fff; }
+label { display: block; margin: 16px 0 6px; font-weight: 600; }
+select, textarea { width: 100%; padding: 10px; border: 1px solid #aab6c5; border-radius: 6px; background: #fff; }
+textarea { resize: vertical; }
+.form-actions { margin-top: 16px; text-align: right; }
+.form-actions button { margin-left: 8px; }
+.conversation-header { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; }
+.conversation-header h2 { margin: 0; }
+.prompt-details { margin: 12px 0; padding: 10px; border: 1px solid #dbe2ea; border-radius: 8px; background: #fff; }
+.prompt-details textarea { margin-top: 8px; color: #536273; background: #f7f9fb; }
+.messages { min-height: 240px; padding: 12px 0; }
+.message { max-width: 82%; margin: 0 0 12px; padding: 12px 14px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; }
+.message.user { margin-left: auto; color: #fff; background: #1769aa; }
+.message.assistant { margin-right: auto; border: 1px solid #dbe2ea; background: #fff; }
+.message .role { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 700; }
+.message-form { display: -webkit-flex; display: flex; -webkit-align-items: flex-end; align-items: flex-end; padding-bottom: 16px; }
+.message-form textarea { -webkit-flex: 1; flex: 1; min-height: 64px; }
+.message-form button { margin-left: 10px; }
+.muted, .help { color: #647487; }
+.help { margin-top: 6px; font-size: 13px; }
+.welcome { margin: 80px auto; color: #647487; text-align: center; }
+.status, .error { min-height: 22px; margin: 8px auto; max-width: 900px; }
+.error { color: #a51d2d; font-weight: 600; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+[hidden] { display: none !important; }
+@media (max-width: 700px) {
+  .site-header { padding: 10px 12px; }
+  .layout { display: block; }
+  .history-panel { width: 100%; border-right: 0; border-bottom: 1px solid #dbe2ea; }
+  .chat-panel { padding: 14px; }
+  .message { max-width: 92%; }
+  .message-form { display: block; }
+  .message-form button { width: 100%; margin: 8px 0 0; }
+}
