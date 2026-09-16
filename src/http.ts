@@ -122,8 +122,10 @@ export function assertSameOrigin(request: Request): void {
  */
 export function errorResponse(error: unknown): Response {
   if (error instanceof HttpError) {
+    // 外部 AI 障害では、内部詳細の代わりに問い合わせ用の追跡 ID を付ける。
+    const requestId = error.status === 502 ? crypto.randomUUID() : undefined;
     return jsonResponse(
-      { error: { code: error.code, message: error.message } },
+      { error: { code: error.code, message: error.message, ...(requestId ? { requestId } : {}) } },
       { status: error.status, headers: error.headers },
     );
   }

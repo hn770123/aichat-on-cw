@@ -2,10 +2,12 @@
  * AI チャット Worker のエントリーポイントと基盤ルーティング。
  *
  * API と死活監視は Worker 内で処理し、それ以外のパスは Static Assets
- * バインディングへ委譲する。認証と業務 API は後続の実装手順で追加する。
+ * バインディングへ委譲する。すべての経路を Basic 認証で保護する。
  */
 
 import type { Env } from "./env";
+import { assertAuthenticated } from "./auth";
+import { createConversation, createMessage, deleteConversation, getConversation, getModels, listConversations } from "./chat";
 import { errorResponse, HttpError, jsonResponse } from "./http";
 
 /**
@@ -41,7 +43,29 @@ function handleHealth(request: Request): Response {
  * @returns 未実装または存在しない API を示す JSON 404 応答。
  * @throws {HttpError} 一致する API ルートが存在しない場合。
  */
-function handleApi(): never {
+async function handleApi(request: Request, env: Env, pathname: string): Promise<Response> {
+  if (pathname === "/api/models") {
+    if (request.method !== "GET") throw methodNotAllowed(["GET"]);
+    return getModels();
+  }
+  if (pathname === "/api/conversations") {
+    if (request.method === "GET") return listConversations(env);
+    if (request.method === "POST") return createConversation(request, env);
+    throw methodNotAllowed(["GET", "POST"]);
+  }
+
+  const messageMatch = pathname.match(/^\/api\/conversations\/([^/]+)\/messages$/);
+  if (messageMatch) {
+    if (request.method !== "POST") throw methodNotAllowed(["POST"]);
+    return createMessage(request, env, decodeURIComponent(messageMatch[1]));
+  }
+  const conversationMatch = pathname.match(/^\/api\/conversations\/([^/]+)$/);
+  if (conversationMatch) {
+    const id = decodeURIComponent(conversationMatch[1]);
+    if (request.method === "GET") return getConversation(env, id);
+    if (request.method === "DELETE") return deleteConversation(request, env, id);
+    throw methodNotAllowed(["GET", "DELETE"]);
+  }
   throw new HttpError(404, "not_found", "API が見つかりません。");
 }
 
@@ -54,12 +78,13 @@ function handleApi(): never {
  */
 async function routeRequest(request: Request, env: Env): Promise<Response> {
   const pathname = new URL(request.url).pathname;
+  assertAuthenticated(request, env);
 
   if (pathname === "/health") {
     return handleHealth(request);
   }
   if (pathname === "/api" || pathname.startsWith("/api/")) {
-    return handleApi();
+    return handleApi(request, env, pathname);
   }
 
   return env.ASSETS.fetch(request);

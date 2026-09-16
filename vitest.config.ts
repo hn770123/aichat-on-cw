@@ -10,6 +10,13 @@ export default defineConfig({
     cloudflareTest({
       // 外部アカウントへ接続せず、Miniflare のローカルバインディングを使う。
       remoteBindings: false,
+      // テスト専用値で認証経路を確認し、本番 Secret は読み込まない。
+      miniflare: {
+        bindings: {
+          BASIC_AUTH_USER: "test-user",
+          BASIC_AUTH_PASSWORD: "test-password",
+        },
+      },
       wrangler: {
         configPath: "./wrangler.jsonc",
       },
