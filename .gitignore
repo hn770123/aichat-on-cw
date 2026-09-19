@@ -5,6 +5,8 @@ npm-debug.log*
 # Wrangler が作成するローカル状態と出力
 .wrangler/
 dist/
+# 実際の D1 ID を含む Codespaces デプロイ専用設定
+wrangler.deploy.jsonc
 
 # ローカル専用の Secret（例示ファイルだけは追跡する）
 .dev.vars
