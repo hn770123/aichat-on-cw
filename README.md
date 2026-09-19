@@ -45,6 +45,8 @@ npm test
 
 ## 本番 D1 の作成とマイグレーション
 
+手元の VS Code から GitHub Codespaces へ接続してデプロイする場合は、Cloudflare のデバイス認証、D1 作成、Secret 登録、デプロイ後確認、ログアウトまでをまとめた [`docs/deploy-from-codespaces.md`](docs/deploy-from-codespaces.md) に従ってください。以下は一般的な環境向けの要点です。
+
 1. Cloudflare にログインします。
 
    ```sh
