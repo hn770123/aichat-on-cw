@@ -25,7 +25,7 @@
     xhr.setRequestHeader("Accept", "application/json");
     if (body !== null) { xhr.setRequestHeader("Content-Type", "application/json"); }
     xhr.onreadystatechange = function () {
-      var data = null;
+      var data;
       if (xhr.readyState !== 4) { return; }
       try { data = xhr.responseText ? JSON.parse(xhr.responseText) : null; } catch (ignored) { data = null; }
       if (xhr.status >= 200 && xhr.status < 300) { callback(null, data); }
