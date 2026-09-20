@@ -7,8 +7,9 @@ import { assertSameOrigin, HttpError, jsonResponse, readJsonObject } from "./htt
 
 /** 新規会話で選択できるモデル。Workers AI の messages 入力対応モデルに限定する。 */
 export const AI_MODELS = [
-  { id: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", name: "Llama 3.3 70B（高品質）" },
-  { id: "@cf/meta/llama-3.1-8b-instruct-fast", name: "Llama 3.1 8B（高速）" },
+  { id: "@cf/zai-org/glm-4.7-flash", name: "GLM 4.7 Flash（高速・多用途）" },
+  { id: "@cf/google/gemma-4-26b-a4b-it", name: "Gemma 4 26B（バランス）" },
+  { id: "@cf/nvidia/nemotron-3-120b-a12b", name: "Nemotron 3 120B（高品質）" },
 ] as const;
 /** 新規会話で既定選択するモデル ID。 */
 export const DEFAULT_MODEL = AI_MODELS[0].id;
