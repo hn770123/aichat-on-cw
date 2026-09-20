@@ -5,7 +5,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import migration from "../migrations/0001_initial.sql?raw";
-import { AI_MODELS, createConversation, createMessage, deleteConversation, getConversation, listConversations, MAX_MESSAGE_LENGTH } from "../src/chat";
+import { AI_MODELS, createConversation, createMessage, deleteConversation, extractAiResponse, getConversation, listConversations, MAX_MESSAGE_LENGTH } from "../src/chat";
 import type { Env } from "../src/env";
 
 /** Wrangler 設定から注入されたテスト用 D1 バインディング。 */
@@ -42,6 +42,40 @@ beforeEach(async () => {
   // マイグレーションをコメント除去後に文単位で実行し、本番と同じスキーマを作る。
   const statements = migration.replace(/^--.*$/gm, "").split(";").map((sql) => sql.trim()).filter(Boolean);
   await testDb.batch(statements.map((sql) => testDb.prepare(sql)));
+});
+
+describe("AI 応答本文の抽出", () => {
+  it.each(AI_MODELS)("$id の Chat Completions 形式から回答を抽出する", ({ id }) => {
+    // 実運用のモデル識別子を含め、3 モデル共通の Chat Completions 構造を再現する。
+    const output = {
+      id: `completion-${id}`,
+      model: id,
+      choices: [{ index: 0, message: { role: "assistant", content: ` ${id} の回答 ` }, finish_reason: "stop" }],
+    };
+
+    expect(extractAiResponse(output)).toBe(`${id} の回答`);
+  });
+
+  it.each([
+    ["choices が空", { choices: [] }],
+    ["message がない", { choices: [{ index: 0 }] }],
+    ["content が null", { choices: [{ message: { content: null } }] }],
+    ["content が空白のみ", { choices: [{ message: { content: " \n\t " } }] }],
+    ["null", null],
+    ["配列", []],
+    ["文字列", "不正な応答"],
+    ["無関係なオブジェクト", { result: "回答らしき値" }],
+  ])("%s の不正な応答を拒否する", (_label, output) => {
+    expect(extractAiResponse(output)).toBeNull();
+  });
+
+  it("旧 response 形式から回答を抽出する", () => {
+    expect(extractAiResponse({ response: " 従来形式の回答 " })).toBe("従来形式の回答");
+  });
+
+  it("Chat Completions 形式が不完全なら有効な旧 response 形式へフォールバックする", () => {
+    expect(extractAiResponse({ choices: [], response: " 互換形式の回答 " })).toBe("互換形式の回答");
+  });
 });
 
 describe("会話履歴 API", () => {

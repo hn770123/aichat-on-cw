@@ -192,8 +192,24 @@ export async function deleteConversation(request: Request, env: Env, rawId: stri
  * @param value Workers AI が返した値。
  * @returns 応答本文。形式が不正なら null。
  */
-function extractAiResponse(value: unknown): string | null {
-  if (value === null || typeof value !== "object" || !("response" in value)) return null;
+export function extractAiResponse(value: unknown): string | null {
+  if (value === null || typeof value !== "object") return null;
+
+  // 新しいモデルが返す Chat Completions 形式を最初に確認する。
+  // 各階層を個別に検証し、空配列や message 欠落でも例外を発生させない。
+  const choices = (value as { choices?: unknown }).choices;
+  if (Array.isArray(choices) && choices.length > 0) {
+    const firstChoice = choices[0];
+    if (firstChoice !== null && typeof firstChoice === "object") {
+      const message = (firstChoice as { message?: unknown }).message;
+      if (message !== null && typeof message === "object") {
+        const content = (message as { content?: unknown }).content;
+        if (typeof content === "string" && content.trim() !== "") return content.trim();
+      }
+    }
+  }
+
+  // 従来の Workers AI 形式も既存モデルとの後方互換性のため維持する。
   const response = (value as { response?: unknown }).response;
   return typeof response === "string" && response.trim() !== "" ? response.trim() : null;
 }
